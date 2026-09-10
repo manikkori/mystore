@@ -3,6 +3,9 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import FloatingContact from "./components/layout/FloatingContact";
+import Navbar from "./components/layout/Navbar";
+import BottomNav from "./components/layout/BottomNav";
+import Home from "./pages/Home";
 
 const App = () => {
   return (
@@ -10,16 +13,10 @@ const App = () => {
       <CartProvider>
         <Router>
           <div className="min-h-screen flex flex-col font-sans bg-brand-50">
+            <Navbar />
             <main className="flex-grow w-full max-w-7xl mx-auto">
               <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <div className="p-8 text-center text-2xl font-display font-bold">
-                      Home Page
-                    </div>
-                  }
-                />
+                <Route path="/" element={<Home />} />
                 <Route
                   path="/product/:id"
                   element={<div>Product Detail</div>}
@@ -28,6 +25,7 @@ const App = () => {
               </Routes>
             </main>
             <FloatingContact />
+            <BottomNav />
           </div>
           <Toaster
             position="top-center"
