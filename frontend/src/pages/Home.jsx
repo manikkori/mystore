@@ -3,7 +3,7 @@ import { Search } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 
-const CATEGORIES = ["All", "Electronics", "Clothing", "Books", "Home", "General"];
+const CATEGORIES = ["All", "Tops", "Dresses", "Jeans", "Ethnic", "Winterwear", "Activewear"];
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -34,13 +34,13 @@ const Home = () => {
   return (
     <div className="mb-20 sm:mb-0">
       {/* Hero Section */}
-      <section className="bg-brand-900 text-white py-20 px-4 sm:px-6 lg:px-8 text-center rounded-b-3xl mb-12 shadow-md">
+      <section className="bg-brand-900 text-white py-16 px-4 sm:px-6 lg:px-8 text-center rounded-b-3xl mb-8 shadow-md">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl sm:text-6xl font-display font-bold mb-6">
-            Discover Premium Products
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold mb-4 sm:mb-6">
+            Trending Girls Fashion
           </h1>
-          <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Upgrade your lifestyle with our curated collection of high-quality items designed for everyday elegance.
+          <p className="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto">
+            Discover the latest styles, elegant dresses, and comfortable everyday wear for girls.
           </p>
           
           {/* Search Bar */}

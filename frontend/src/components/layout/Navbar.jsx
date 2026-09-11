@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingBag, User, Menu, LogOut, Shield } from "lucide-react";
+import { ShoppingBag, User, Menu, LogOut, Shield, X } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -7,11 +8,13 @@ const Navbar = () => {
   const { cart } = useCart();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   const handleLogout = async () => {
     await logout();
+    setIsMobileMenuOpen(false);
     navigate("/");
   };
 
@@ -20,29 +23,23 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-4">
-            <button className="sm:hidden p-2 -ml-2 text-brand-900">
-              <Menu size={24} />
+            <button 
+              className="sm:hidden p-2 -ml-2 text-brand-900"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
             <Link
               to="/"
-              className="font-display font-bold text-2xl tracking-tighter"
+              className="font-display font-bold text-2xl tracking-tighter text-pink-600"
             >
-              BRAND.
+              GIRLS FASHION
             </Link>
           </div>
 
           <div className="hidden sm:flex items-center gap-8 font-medium text-sm tracking-wide">
-            <Link to="/" className="hover:text-gray-600 transition-colors">
-              Shop
-            </Link>
-            <Link
-              to="/collections"
-              className="hover:text-gray-600 transition-colors"
-            >
-              Collections
-            </Link>
-            <Link to="/about" className="hover:text-gray-600 transition-colors">
-              About
+            <Link to="/" className="hover:text-pink-600 transition-colors">
+              Home
             </Link>
             {user?.role === "admin" && (
               <Link
@@ -74,9 +71,9 @@ const Navbar = () => {
             ) : (
               <Link
                 to="/login"
-                className="hidden sm:block p-2 text-brand-900 hover:bg-brand-50 rounded-full transition-colors"
+                className="hidden sm:flex items-center gap-1 text-sm font-medium hover:text-brand-900 transition-colors"
               >
-                <User size={20} />
+                <User size={18} /> Login
               </Link>
             )}
 
@@ -94,6 +91,57 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="sm:hidden bg-white border-b border-brand-100 absolute w-full left-0 py-4 px-4 shadow-lg flex flex-col gap-4 z-50">
+          <Link 
+            to="/" 
+            className="text-lg font-medium text-gray-800 hover:text-pink-600"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Home
+          </Link>
+          
+          {user?.role === "admin" && (
+            <Link
+              to="/admin"
+              className="text-lg font-medium text-brand-900 flex items-center gap-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Shield size={20} /> Admin Panel
+            </Link>
+          )}
+
+          <div className="h-px bg-gray-100 my-2"></div>
+
+          {user ? (
+            <>
+              <Link
+                to="/account"
+                className="text-lg font-medium text-gray-800 flex items-center gap-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <User size={20} /> My Account
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-lg font-medium text-red-600 flex items-center gap-2 text-left"
+              >
+                <LogOut size={20} /> Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="text-lg font-medium text-gray-800 flex items-center gap-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <User size={20} /> Login / Register
+            </Link>
+          )}
+        </div>
+      )}
     </nav>
   );
 };

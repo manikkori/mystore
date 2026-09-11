@@ -21,9 +21,16 @@ const app = express();
 app.set('trust proxy', 1);
 
 // 2. Strict CORS Configuration (Vercel <-> Render)
+const allowedOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : [];
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('vercel.app') || origin.startsWith('http://localhost')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
