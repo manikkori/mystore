@@ -27,6 +27,7 @@ export const AuthProvider = ({ children }) => {
     const { data } = await api.post("/auth/login", { email, password });
     setUser(data.user);
     localStorage.setItem("user", JSON.stringify(data.user));
+    if (data.token) localStorage.setItem("token", data.token);
     return data;
   };
 
@@ -38,13 +39,19 @@ export const AuthProvider = ({ children }) => {
     });
     setUser(data.user);
     localStorage.setItem("user", JSON.stringify(data.user));
+    if (data.token) localStorage.setItem("token", data.token);
     return data;
   };
 
   const logout = async () => {
-    await api.post("/auth/logout");
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout request failed, but clearing local state anyway.", error);
+    }
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   return (
