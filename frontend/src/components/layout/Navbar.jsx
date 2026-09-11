@@ -45,20 +45,12 @@ const Navbar = () => {
               About
             </Link>
             {user?.role === "admin" && (
-              <>
-                <Link
-                  to="/admin"
-                  className="hover:text-brand-900 flex items-center gap-1 transition-colors"
-                >
-                  <Shield size={16} /> Dashboard
-                </Link>
-                <Link
-                  to="/admin/add-product"
-                  className="hover:text-brand-900 transition-colors"
-                >
-                  Add Product
-                </Link>
-              </>
+              <Link
+                to="/admin"
+                className="hover:text-brand-900 flex items-center gap-1 transition-colors font-bold"
+              >
+                <Shield size={16} /> Admin Panel
+              </Link>
             )}
           </div>
 

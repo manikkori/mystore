@@ -15,8 +15,16 @@ import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import Auth from "./pages/Auth";
 import Account from "./pages/Account";
+
+// Admin Imports
+import AdminLayout from "./components/layout/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProducts from "./pages/admin/AdminProducts";
 import AddProduct from "./pages/admin/AddProduct";
+import EditProduct from "./pages/admin/EditProduct";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
 
 // Sirf Logged in users ke liye
 const RequireAuth = ({ children }) => {
@@ -41,7 +49,7 @@ const App = () => {
         <Router>
           <div className="min-h-screen flex flex-col font-sans bg-brand-50">
             <Navbar />
-            <main className="flex-grow w-full max-w-7xl mx-auto">
+            <main className="flex-grow w-full max-w-[1400px] mx-auto">
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
@@ -66,23 +74,23 @@ const App = () => {
                   }
                 />
 
-                {/* Admin Protected Routes */}
+                {/* Admin Protected Routes inside Layout */}
                 <Route
                   path="/admin"
                   element={
                     <AdminRoute>
-                      <AdminDashboard />
+                      <AdminLayout />
                     </AdminRoute>
                   }
-                />
-                <Route
-                  path="/admin/add-product"
-                  element={
-                    <AdminRoute>
-                      <AddProduct />
-                    </AdminRoute>
-                  }
-                />
+                >
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="add-product" element={<AddProduct />} />
+                  <Route path="products/edit/:id" element={<EditProduct />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="audit-logs" element={<AdminAuditLogs />} />
+                </Route>
               </Routes>
             </main>
             <FloatingContact />

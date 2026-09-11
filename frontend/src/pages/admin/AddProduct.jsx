@@ -12,6 +12,7 @@ const AddProduct = () => {
     description: "",
     price: "",
     stock: "",
+    category: "",
   });
 
   const handleChange = (e) => {
@@ -33,6 +34,7 @@ const AddProduct = () => {
     data.append("description", formData.description);
     data.append("price", formData.price);
     data.append("stock", formData.stock);
+    data.append("category", formData.category || "General");
     images.forEach((image) => {
       data.append("images", image);
     });
@@ -45,7 +47,7 @@ const AddProduct = () => {
         },
       });
       toast.success("Product added successfully");
-      navigate("/admin");
+      navigate("/admin/products");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to add product");
     } finally {
@@ -54,7 +56,7 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="max-w-2xl mx-auto">
       <h1 className="text-3xl font-display font-bold text-brand-900 mb-8">
         Add New Product
       </h1>
@@ -120,6 +122,21 @@ const AddProduct = () => {
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-900 outline-none"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Category
+          </label>
+          <input
+            type="text"
+            name="category"
+            placeholder="e.g., Electronics, Clothing"
+            value={formData.category}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-900 outline-none"
+          />
         </div>
 
         <div>
