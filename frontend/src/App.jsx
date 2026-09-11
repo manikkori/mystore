@@ -13,12 +13,24 @@ import BottomNav from "./components/layout/BottomNav";
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
+import Auth from "./pages/Auth";
+import Account from "./pages/Account";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AddProduct from "./pages/admin/AddProduct";
 
+// Sirf Logged in users ke liye
+const RequireAuth = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+};
+
+// Sirf Admin ke liye
 const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return null;
-  if (!user || user.role !== "admin") return <Navigate to="/" />;
+  if (!user || user.role !== "admin") return <Navigate to="/" replace />;
   return children;
 };
 
@@ -31,14 +43,43 @@ const App = () => {
             <Navbar />
             <main className="flex-grow w-full max-w-7xl mx-auto">
               <Routes>
+                {/* Public Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/login" element={<Auth />} />
+
+                {/* User Protected Routes */}
+                <Route
+                  path="/checkout"
+                  element={
+                    <RequireAuth>
+                      <Checkout />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/account"
+                  element={
+                    <RequireAuth>
+                      <Account />
+                    </RequireAuth>
+                  }
+                />
+
+                {/* Admin Protected Routes */}
                 <Route
                   path="/admin"
                   element={
                     <AdminRoute>
                       <AdminDashboard />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/add-product"
+                  element={
+                    <AdminRoute>
+                      <AddProduct />
                     </AdminRoute>
                   }
                 />

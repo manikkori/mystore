@@ -1,13 +1,19 @@
-import { Link } from "react-router-dom";
-import { ShoppingBag, User, Menu } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingBag, User, Menu, LogOut, Shield } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 
 const Navbar = () => {
   const { cart } = useCart();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
 
   return (
     <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-brand-100">
@@ -38,15 +44,50 @@ const Navbar = () => {
             <Link to="/about" className="hover:text-gray-600 transition-colors">
               About
             </Link>
+            {user?.role === "admin" && (
+              <>
+                <Link
+                  to="/admin"
+                  className="hover:text-brand-900 flex items-center gap-1 transition-colors"
+                >
+                  <Shield size={16} /> Dashboard
+                </Link>
+                <Link
+                  to="/admin/add-product"
+                  className="hover:text-brand-900 transition-colors"
+                >
+                  Add Product
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
-            <Link
-              to="/account"
-              className="hidden sm:block p-2 text-brand-900 hover:bg-brand-50 rounded-full transition-colors"
-            >
-              <User size={20} />
-            </Link>
+            {user ? (
+              <div className="hidden sm:flex items-center gap-4">
+                <Link
+                  to="/account"
+                  className="flex items-center gap-1 text-sm font-medium hover:text-brand-900 transition-colors"
+                >
+                  <User size={18} /> My Account
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  title="Logout"
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                >
+                  <LogOut size={20} />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="hidden sm:block p-2 text-brand-900 hover:bg-brand-50 rounded-full transition-colors"
+              >
+                <User size={20} />
+              </Link>
+            )}
+
             <Link
               to="/checkout"
               className="relative p-2 text-brand-900 hover:bg-brand-50 rounded-full transition-colors"

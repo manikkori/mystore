@@ -6,7 +6,9 @@ exports.getAllOrders = async (req, res, next) => {
   try {
     const orders = await Order.find()
       .select("-phone -shippingAddress")
-      .populate("user", "name email");
+      .populate("user", "name email")
+      .populate("orderItems.product", "name images price")
+      .sort({ createdAt: -1 });
     res.status(200).json({ success: true, orders });
   } catch (error) {
     next(error);
@@ -15,10 +17,9 @@ exports.getAllOrders = async (req, res, next) => {
 
 exports.getOrderDetailsWithPII = async (req, res, next) => {
   try {
-    const order = await Order.findById(req.params.id).populate(
-      "user",
-      "name email",
-    );
+    const order = await Order.findById(req.params.id)
+      .populate("user", "name email")
+      .populate("orderItems.product", "name images price");
 
     if (!order) {
       return next(new AppError("Order not found", 404));
