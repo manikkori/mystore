@@ -10,7 +10,7 @@ cloudinary.config({
 
 exports.createProduct = async (req, res, next) => {
   try {
-    const { name, description, price, stock } = req.body;
+    const { name, description, price, stock, category } = req.body;
 
     if (!req.files || req.files.length === 0) {
       return next(new AppError("Please upload at least one image", 400));
@@ -33,6 +33,7 @@ exports.createProduct = async (req, res, next) => {
       description,
       price: Number(price),
       stock: Number(stock),
+      category: category || "General",
       images: imageUrls,
     });
 
@@ -48,9 +49,42 @@ exports.createProduct = async (req, res, next) => {
   }
 };
 
+exports.updateProduct = async (req, res, next) => {
+  try {
+    let product = await Product.findById(req.params.id);
+    if (!product) {
+      return next(new AppError("Product not found", 404));
+    }
+
+    const { name, description, price, stock, category } = req.body;
+    
+    // Simplification: Not handling image updates in this iteration, just data
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.price = price !== undefined ? Number(price) : product.price;
+    product.stock = stock !== undefined ? Number(stock) : product.stock;
+    product.category = category || product.category;
+
+    const updatedProduct = await product.save();
+    res.status(200).json({ success: true, product: updatedProduct });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getProducts = async (req, res, next) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const { keyword, category } = req.query;
+    let query = {};
+    
+    if (keyword) {
+      query.name = { $regex: keyword, $options: "i" };
+    }
+    if (category && category !== "All") {
+      query.category = category;
+    }
+
+    const products = await Product.find(query).sort({ createdAt: -1 });
     res.status(200).json({ success: true, products });
   } catch (error) {
     next(error);
@@ -81,6 +115,43 @@ exports.deleteProduct = async (req, res, next) => {
     res
       .status(200)
       .json({ success: true, message: "Product deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createProductReview = async (req, res, next) => {
+  try {
+    const { rating, comment } = req.body;
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return next(new AppError("Product not found", 404));
+    }
+
+    const alreadyReviewed = product.reviews.find(
+      (r) => r.user.toString() === req.user._id.toString()
+    );
+
+    if (alreadyReviewed) {
+      return next(new AppError("Product already reviewed", 400));
+    }
+
+    const review = {
+      name: req.user.name,
+      rating: Number(rating),
+      comment,
+      user: req.user._id,
+    };
+
+    product.reviews.push(review);
+    product.numReviews = product.reviews.length;
+    product.rating =
+      product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      product.reviews.length;
+
+    await product.save();
+    res.status(201).json({ success: true, message: "Review added" });
   } catch (error) {
     next(error);
   }
