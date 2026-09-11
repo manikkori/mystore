@@ -18,6 +18,7 @@ const { globalErrorHandler } = require("./middlewares/errorMiddleware");
 validateEnv();
 
 const app = express();
+app.set('trust proxy', 1);
 
 // 2. Strict CORS Configuration (Vercel <-> Render)
 app.use(
