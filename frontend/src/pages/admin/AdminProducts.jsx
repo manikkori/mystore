@@ -69,9 +69,9 @@ const AdminProducts = () => {
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
                     {/* Placeholder for edit route if needed, using simple alert for now if no dedicated page */}
-                    <button onClick={() => toast("Edit functionality coming soon")} className="p-2 text-blue-600 hover:bg-blue-50 rounded">
+                    <Link to={`/admin/products/edit/${product._id}`} className="p-2 text-blue-600 hover:bg-blue-50 rounded">
                       <Edit size={18} />
-                    </button>
+                    </Link>
                     <button onClick={() => handleDelete(product._id)} className="p-2 text-red-600 hover:bg-red-50 rounded">
                       <Trash2 size={18} />
                     </button>
