@@ -16,7 +16,7 @@ const AdminLayout = () => {
   return (
     <div className="flex min-h-[80vh] flex-col md:flex-row gap-6 p-4 sm:p-6 lg:p-8 bg-brand-50 w-full">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-white border border-brand-100 rounded-xl shadow-sm p-4 h-fit sticky top-24">
+      <aside className="hidden md:block md:w-64 bg-white border border-brand-100 rounded-xl shadow-sm p-4 h-fit sticky top-24">
         <h2 className="text-xl font-display font-bold text-brand-900 mb-6 px-2">
           Admin Panel
         </h2>
