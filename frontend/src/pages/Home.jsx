@@ -4,6 +4,7 @@ import api from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 
 const CATEGORIES = ["All", "Tops", "Dresses", "Jeans", "Ethnic", "Winterwear", "Activewear"];
+const apiCache = {};
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -12,9 +13,19 @@ const Home = () => {
   const [category, setCategory] = useState("All");
 
   const fetchProducts = async () => {
-    setLoading(true);
+    const cacheKey = `${keyword}-${category}`;
+    
+    if (apiCache[cacheKey]) {
+      setProducts(apiCache[cacheKey]);
+      setLoading(false);
+    } else {
+      // Only set loading to true if we don't have these products in cache
+      setLoading(true);
+    }
+
     try {
       const { data } = await api.get(`/products?keyword=${keyword}&category=${category}`);
+      apiCache[cacheKey] = data.products;
       setProducts(data.products);
     } catch (error) {
       console.error(error);

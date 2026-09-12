@@ -6,6 +6,8 @@ import api from "../services/api";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
+const apiCache = {};
+
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -19,8 +21,16 @@ const ProductDetail = () => {
   const [comment, setComment] = useState("");
 
   const fetchProduct = async () => {
+    if (apiCache[id]) {
+      setProduct(apiCache[id]);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+
     try {
       const { data } = await api.get(`/products/${id}`);
+      apiCache[id] = data.product;
       setProduct(data.product);
     } catch (error) {
       toast.error("Product not found");
