@@ -31,10 +31,10 @@ const Footer = () => {
   return (
     <footer className="bg-white border-t border-brand-100 pt-12 pb-24 sm:pb-12 mt-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           
           {/* Brand & Description */}
-          <div className="space-y-4">
+          <div className="space-y-4 md:pr-8">
             <Link to="/" className="font-display font-bold text-2xl tracking-tighter text-pink-600 block">
               GIRLS FASHION
             </Link>
@@ -73,25 +73,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Customer Service */}
-          <div>
-            <h3 className="font-display font-bold text-gray-900 mb-4 uppercase tracking-wider text-sm">Customer Service</h3>
-            <ul className="space-y-3">
-              <li>
-                <a href="#" className="text-gray-500 hover:text-pink-600 transition-colors text-sm">Shipping Policy</a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-500 hover:text-pink-600 transition-colors text-sm">Returns & Exchanges</a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-500 hover:text-pink-600 transition-colors text-sm">Size Guide</a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-500 hover:text-pink-600 transition-colors text-sm">FAQs</a>
-              </li>
-            </ul>
-          </div>
-
           {/* Contact Info */}
           <div>
             <h3 className="font-display font-bold text-gray-900 mb-4 uppercase tracking-wider text-sm">Contact Us</h3>
@@ -102,7 +83,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={18} className="text-pink-600 shrink-0" />
-                <a href="tel:+919876543210" className="text-gray-500 hover:text-pink-600 transition-colors text-sm">+91 98765 43210</a>
+                <a href={`tel:${import.meta.env.VITE_STORE_PHONE || "+919876543210"}`} className="text-gray-500 hover:text-pink-600 transition-colors text-sm">{import.meta.env.VITE_STORE_PHONE || "+91 98765 43210"}</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={18} className="text-pink-600 shrink-0" />

@@ -7,7 +7,6 @@ const AppError = require("../utils/AppError");
 exports.getAllOrders = async (req, res, next) => {
   try {
     const orders = await Order.find()
-      .select("-phone -shippingAddress")
       .populate("user", "name email")
       .populate("orderItems.product", "name images price")
       .sort({ createdAt: -1 });

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Eye } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../../services/api";
 
@@ -29,27 +28,6 @@ const AdminOrders = () => {
       fetchOrders();
     } catch (error) {
       toast.error("Failed to update status");
-    }
-  };
-
-  const viewPII = async (orderId) => {
-    try {
-      const { data } = await api.get(`/admin/orders/${orderId}/pii`);
-      setOrders(
-        orders.map((order) =>
-          order._id === orderId
-            ? {
-                ...order,
-                phone: data.order.phone,
-                shippingAddress: data.order.shippingAddress,
-                piiViewed: true,
-              }
-            : order,
-        ),
-      );
-      toast.success("Customer data accessed and logged");
-    } catch (error) {
-      toast.error("Failed to access customer data");
     }
   };
 
@@ -98,19 +76,10 @@ const AdminOrders = () => {
                   </select>
                 </td>
                 <td className="px-6 py-4">
-                  {!order.piiViewed ? (
-                    <button
-                      onClick={() => viewPII(order._id)}
-                      className="flex items-center gap-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition-colors"
-                    >
-                      <Eye size={16} /> View Address
-                    </button>
-                  ) : (
-                    <div className="text-sm">
-                      <p className="font-medium">{order.phone}</p>
-                      <p className="text-gray-500 mt-1 max-w-[200px]">{order.shippingAddress}</p>
-                    </div>
-                  )}
+                  <div className="text-sm">
+                    <p className="font-medium">{order.phone || "N/A"}</p>
+                    <p className="text-gray-500 mt-1 max-w-[200px]">{order.shippingAddress || "N/A"}</p>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -92,7 +92,7 @@ const Navbar = () => {
 
             {/* Call Icon - Mobile Only */}
             <a
-              href="tel:+919876543210"
+              href={`tel:${import.meta.env.VITE_STORE_PHONE || "+919876543210"}`}
               className="p-2 text-brand-900 hover:bg-brand-50 rounded-full transition-colors sm:hidden"
             >
               <Phone size={20} />
