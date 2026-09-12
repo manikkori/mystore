@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingBag, User, Menu, LogOut, Shield, X } from "lucide-react";
+import { ShoppingBag, User, Menu, LogOut, Shield, X, Phone } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -77,9 +77,10 @@ const Navbar = () => {
               </Link>
             )}
 
+            {/* Cart Icon - Desktop Only */}
             <Link
               to="/checkout"
-              className="relative p-2 text-brand-900 hover:bg-brand-50 rounded-full transition-colors"
+              className="relative p-2 text-brand-900 hover:bg-brand-50 rounded-full transition-colors hidden sm:block"
             >
               <ShoppingBag size={20} />
               {cartCount > 0 && (
@@ -88,13 +89,21 @@ const Navbar = () => {
                 </span>
               )}
             </Link>
+
+            {/* Call Icon - Mobile Only */}
+            <a
+              href="tel:+919876543210"
+              className="p-2 text-brand-900 hover:bg-brand-50 rounded-full transition-colors sm:hidden"
+            >
+              <Phone size={20} />
+            </a>
           </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="sm:hidden bg-white border-b border-brand-100 absolute w-full left-0 py-4 px-4 shadow-lg flex flex-col gap-4 z-50">
+        <div className="sm:hidden bg-white border-b border-brand-100 absolute w-full left-0 py-4 px-4 shadow-lg flex flex-col gap-4 z-50 max-h-[80vh] overflow-y-auto">
           <Link 
             to="/" 
             className="text-lg font-medium text-gray-800 hover:text-pink-600"
@@ -104,13 +113,17 @@ const Navbar = () => {
           </Link>
           
           {user?.role === "admin" && (
-            <Link
-              to="/admin"
-              className="text-lg font-medium text-brand-900 flex items-center gap-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <Shield size={20} /> Admin Panel
-            </Link>
+            <div className="flex flex-col gap-3 bg-brand-50 p-4 rounded-xl mt-2">
+              <span className="text-sm font-bold text-brand-900 uppercase tracking-wider mb-1 flex items-center gap-2">
+                <Shield size={16} /> Admin Controls
+              </span>
+              <Link to="/admin" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
+              <Link to="/admin/products" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Products</Link>
+              <Link to="/admin/add-product" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Add Product</Link>
+              <Link to="/admin/orders" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Orders</Link>
+              <Link to="/admin/users" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Users</Link>
+              <Link to="/admin/audit-logs" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Audit Logs</Link>
+            </div>
           )}
 
           <div className="h-px bg-gray-100 my-2"></div>
