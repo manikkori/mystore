@@ -22,8 +22,9 @@ const BottomNav = () => {
           <span className="text-[10px] font-medium">Home</span>
         </Link>
         <Link
-          to="/collections"
-          className={`flex flex-col items-center gap-1 ${isActive("/collections")}`}
+          to="/"
+          onClick={() => window.scrollTo({ top: document.getElementById("shop-grid")?.offsetTop || 500, behavior: "smooth" })}
+          className={`flex flex-col items-center gap-1 ${isActive("/collections") || location.pathname === "/" ? "text-gray-400 hover:text-brand-900" : "text-gray-400"}`}
         >
           <Grid size={20} />
           <span className="text-[10px] font-medium">Shop</span>
