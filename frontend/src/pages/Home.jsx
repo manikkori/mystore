@@ -34,13 +34,14 @@ const Home = () => {
   return (
     <div className="mb-20 sm:mb-0">
       {/* Hero Section */}
-      <section className="bg-brand-900 text-white py-16 px-4 sm:px-6 lg:px-8 text-center rounded-b-3xl mb-8 shadow-md">
+      <section className="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700 text-brand-50 py-20 px-4 sm:px-6 lg:px-8 text-center rounded-b-[40px] mb-12 shadow-float">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold mb-4 sm:mb-6">
+          <span className="text-brand-300 font-semibold tracking-widest uppercase text-sm mb-4 block">New Collection 2026</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-display font-bold mb-6 italic tracking-tight">
             Trending Girls Fashion
           </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto">
-            Discover the latest styles, elegant dresses, and comfortable everyday wear for girls.
+          <p className="text-base sm:text-lg lg:text-xl text-brand-100 mb-8 max-w-2xl mx-auto font-light leading-relaxed">
+            Discover the latest styles, elegant dresses, and comfortable everyday wear designed exclusively for girls.
           </p>
           
           {/* Search Bar */}

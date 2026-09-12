@@ -15,7 +15,7 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <Link to={`/product/${product._id}`} className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full relative">
+    <Link to={`/product/${product._id}`} className="group block bg-white rounded-3xl overflow-hidden shadow-card hover:shadow-float transition-all duration-500 border border-brand-100 flex flex-col h-full relative">
       {/* Badges */}
       {product.stock === 0 && (
         <span className="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full z-10">
