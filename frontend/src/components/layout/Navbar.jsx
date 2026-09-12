@@ -13,9 +13,11 @@ const Navbar = () => {
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   const handleLogout = async () => {
-    await logout();
-    setIsMobileMenuOpen(false);
-    navigate("/");
+    if (window.confirm("Are you sure you want to log out?")) {
+      await logout();
+      setIsMobileMenuOpen(false);
+      navigate("/");
+    }
   };
 
   return (

@@ -29,8 +29,10 @@ const Account = () => {
   }, [user]);
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/");
+    if (window.confirm("Are you sure you want to log out?")) {
+      await logout();
+      navigate("/");
+    }
   };
 
   if (!user) {
