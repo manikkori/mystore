@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../services/api";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 const Checkout = () => {
-  const { cart, cartTotal, clearCart } = useCart();
+  const { cart, cartTotal, clearCart, removeFromCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -150,7 +151,7 @@ const Checkout = () => {
             </h2>
             <div className="space-y-4 mb-6 max-h-[40vh] overflow-y-auto pr-2">
               {cart.map((item, idx) => (
-                <div key={idx} className="flex gap-4">
+                <div key={idx} className="flex gap-4 group">
                   <div className="w-16 h-20 bg-white rounded-md overflow-hidden flex-shrink-0 border border-brand-100">
                     <img
                       src={item.product.images[0]}
@@ -158,19 +159,29 @@ const Checkout = () => {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="flex-grow">
-                    <h4 className="font-medium text-sm text-brand-900">
-                      {item.product.name}
-                    </h4>
-                    <p className="text-gray-500 text-xs mt-1">
-                      Qty: {item.quantity}
-                    </p>
-                    <p className="font-semibold text-sm mt-2">
-                      ₹
-                      {(item.product.price * item.quantity).toLocaleString(
-                        "en-IN",
-                      )}
-                    </p>
+                  <div className="flex-grow flex justify-between items-start">
+                    <div>
+                      <h4 className="font-medium text-sm text-brand-900 pr-2">
+                        {item.product.name}
+                      </h4>
+                      <p className="text-gray-500 text-xs mt-1">
+                        Qty: {item.quantity}
+                      </p>
+                      <p className="font-semibold text-sm mt-2">
+                        ₹
+                        {(item.product.price * item.quantity).toLocaleString(
+                          "en-IN",
+                        )}
+                      </p>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => removeFromCart(item.product._id)}
+                      className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                      title="Remove item"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </div>
               ))}
