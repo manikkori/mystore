@@ -26,6 +26,8 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
 
+import Footer from "./components/layout/Footer";
+
 // Sirf Logged in users ke liye
 const RequireAuth = ({ children }) => {
   const { user, loading } = useAuth();
@@ -93,6 +95,7 @@ const App = () => {
                 </Route>
               </Routes>
             </main>
+            <Footer />
             <FloatingContact />
             <BottomNav />
           </div>
