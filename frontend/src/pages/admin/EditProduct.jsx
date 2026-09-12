@@ -97,14 +97,20 @@ const EditProduct = () => {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Category</label>
-          <input
-            type="text"
+          <select
             required
-            placeholder="e.g. Electronics, Clothing"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 bg-white"
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-          />
+          >
+            <option value="" disabled>Select a category</option>
+            <option value="Tops">Tops</option>
+            <option value="Dresses">Dresses</option>
+            <option value="Jeans">Jeans</option>
+            <option value="Ethnic">Ethnic</option>
+            <option value="Winterwear">Winterwear</option>
+            <option value="Activewear">Activewear</option>
+          </select>
         </div>
         <div className="pt-4">
           <button type="submit" className="w-full bg-brand-900 text-white py-2 px-4 rounded-md hover:bg-brand-800">

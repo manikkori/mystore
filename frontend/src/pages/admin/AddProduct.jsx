@@ -128,15 +128,21 @@ const AddProduct = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Category
           </label>
-          <input
-            type="text"
+          <select
             name="category"
-            placeholder="e.g., Electronics, Clothing"
             value={formData.category}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-900 outline-none"
-          />
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-900 outline-none bg-white"
+          >
+            <option value="" disabled>Select a category</option>
+            <option value="Tops">Tops</option>
+            <option value="Dresses">Dresses</option>
+            <option value="Jeans">Jeans</option>
+            <option value="Ethnic">Ethnic</option>
+            <option value="Winterwear">Winterwear</option>
+            <option value="Activewear">Activewear</option>
+          </select>
         </div>
 
         <div>
