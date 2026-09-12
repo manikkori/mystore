@@ -57,7 +57,7 @@ const Home = () => {
         </div>
       </section>
 
-      <div className="px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto">
+      <div id="shop-grid" className="px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto pt-4">
         
         {/* Categories */}
         <div className="flex overflow-x-auto pb-4 mb-8 gap-3 no-scrollbar items-center">
