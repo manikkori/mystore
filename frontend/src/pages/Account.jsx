@@ -142,7 +142,9 @@ const Account = () => {
                             ? "bg-yellow-50 text-yellow-700 border-yellow-200"
                             : order.status === "Confirmed"
                               ? "bg-blue-50 text-blue-700 border-blue-200"
-                              : "bg-green-50 text-green-700 border-green-200"
+                              : order.status === "Shipped"
+                                ? "bg-purple-50 text-purple-700 border-purple-200"
+                                : "bg-green-50 text-green-700 border-green-200"
                         }`}
                       >
                         {order.status}

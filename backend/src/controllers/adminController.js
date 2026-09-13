@@ -45,7 +45,7 @@ exports.getOrderDetailsWithPII = async (req, res, next) => {
 exports.updateOrderStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
-    const validStatuses = ["Pending", "Confirmed", "Shipped"];
+    const validStatuses = ["Pending", "Confirmed", "Shipped", "Delivered"];
 
     if (!validStatuses.includes(status)) {
       return next(new AppError("Invalid status", 400));

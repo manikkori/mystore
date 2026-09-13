@@ -73,6 +73,7 @@ const AdminOrders = () => {
                     <option value="Pending">Pending</option>
                     <option value="Confirmed">Confirmed</option>
                     <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
                   </select>
                 </td>
                 <td className="px-6 py-4">
