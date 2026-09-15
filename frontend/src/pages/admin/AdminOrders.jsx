@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../../services/api";
 
@@ -53,11 +54,28 @@ const AdminOrders = () => {
               <tr key={order._id} className="hover:bg-gray-50 align-top">
                 <td className="px-6 py-4">
                   <p className="text-xs font-mono text-gray-500 mb-2">#{order._id}</p>
-                  <div className="space-y-2">
+                  <div className="space-y-3 mt-3">
                     {order.orderItems.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{item.product?.name || "Deleted"}</span>
-                        <span className="text-xs text-gray-500">x{item.quantity}</span>
+                      <div key={idx} className="flex items-center gap-3 bg-gray-50/50 p-2 rounded-md border border-gray-100">
+                        {item.product && item.product.images && item.product.images[0] ? (
+                          <img 
+                            src={item.product.images[0]} 
+                            alt={item.product.name} 
+                            className="w-12 h-12 object-cover rounded-md border border-gray-200"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-100 rounded-md border border-gray-200 flex items-center justify-center text-gray-400 text-[10px] text-center">No Img</div>
+                        )}
+                        <div className="flex flex-col">
+                          {item.product ? (
+                            <Link to={`/product/${item.product._id}`} className="text-sm font-medium text-brand-900 hover:underline line-clamp-1">
+                              {item.product.name}
+                            </Link>
+                          ) : (
+                            <span className="text-sm font-medium text-gray-500">Deleted Product</span>
+                          )}
+                          <span className="text-xs text-gray-500">Qty: {item.quantity}</span>
+                        </div>
                       </div>
                     ))}
                   </div>
