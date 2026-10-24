@@ -5,6 +5,7 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -46,11 +47,14 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
 const App = () => {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <AuthProvider>
+        <CartProvider>
+          <Router>
           <div className="min-h-screen flex flex-col font-sans bg-brand-50">
             <Navbar />
             <main className="flex-grow w-full max-w-[1400px] mx-auto">
@@ -115,6 +119,7 @@ const App = () => {
         </Router>
       </CartProvider>
     </AuthProvider>
+  </GoogleOAuthProvider>
   );
 };
 

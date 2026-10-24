@@ -1,6 +1,10 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const { OAuth2Client } = require("google-auth-library");
 const AppError = require("../utils/AppError");
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -61,6 +65,51 @@ exports.loginUser = async (req, res, next) => {
 
     if (!user || !(await user.matchPassword(password))) {
       return next(new AppError("Invalid credentials", 401));
+    }
+
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.googleLogin = async (req, res, next) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return next(new AppError("Google token is required", 400));
+    }
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return next(
+        new AppError("GOOGLE_CLIENT_ID is not configured on the server", 500),
+      );
+    }
+
+    let payload;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } catch (err) {
+      return next(new AppError("Invalid or expired Google token", 401));
+    }
+
+    const { email, name } = payload;
+    if (!email) {
+      return next(new AppError("Google account has no verified email", 400));
+    }
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      const randomPassword = crypto.randomBytes(24).toString("hex");
+      user = await User.create({
+        name: name || "Google User",
+        email,
+        password: randomPassword,
+      });
     }
 
     sendTokenResponse(user, 200, res);
