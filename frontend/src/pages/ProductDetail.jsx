@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ShoppingBag, ArrowLeft, Star } from "lucide-react";
+import { ShoppingBag, ArrowLeft, Star, Zap } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../services/api";
 import { useCart } from "../context/CartContext";
@@ -11,7 +11,7 @@ const apiCache = {};
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, cart } = useCart();
   const { user } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -47,6 +47,15 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     addToCart(product, 1);
     toast.success("Added to cart");
+  };
+
+  const handleBuyNow = () => {
+    if (product.stock === 0) return;
+    const exists = cart.find((item) => item.product._id === product._id);
+    if (!exists) {
+      addToCart(product, 1);
+    }
+    navigate("/checkout");
   };
 
   const submitReview = async (e) => {
@@ -149,14 +158,32 @@ const ProductDetail = () => {
             <p>{product.description}</p>
           </div>
 
-          <button
-            onClick={handleAddToCart}
-            disabled={product.stock === 0}
-            className="w-full bg-brand-900 text-white py-4 rounded-lg font-medium text-lg flex items-center justify-center gap-2 hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-          >
-            <ShoppingBag size={20} />
-            {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
-          </button>
+          {product.stock === 0 ? (
+            <button
+              disabled
+              className="w-full bg-gray-200 text-gray-500 py-3.5 sm:py-4 rounded-xl font-semibold text-base sm:text-lg flex items-center justify-center gap-2 cursor-not-allowed"
+            >
+              <ShoppingBag size={20} />
+              Out of Stock
+            </button>
+          ) : (
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+              <button
+                onClick={handleAddToCart}
+                className="w-full border-2 border-brand-900 text-brand-900 bg-white hover:bg-brand-50 py-3 sm:py-4 px-2 sm:px-4 rounded-xl font-semibold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-sm active:scale-[0.98]"
+              >
+                <ShoppingBag size={18} className="shrink-0" />
+                <span>Add to Cart</span>
+              </button>
+              <button
+                onClick={handleBuyNow}
+                className="w-full bg-brand-900 text-white hover:bg-black py-3 sm:py-4 px-2 sm:px-4 rounded-xl font-semibold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
+              >
+                <Zap size={18} className="shrink-0 fill-current text-brand-200" />
+                <span>Buy Now</span>
+              </button>
+            </div>
+          )}
           <p className="text-sm text-center text-gray-500 mt-4">
             {product.stock > 0 ? `${product.stock} items available` : ''}
           </p>
