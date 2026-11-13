@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Trash2,
@@ -22,10 +22,29 @@ const Checkout = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const storeUpiId =
-    import.meta.env.VITE_STORE_UPI_ID || "9876543210@paytm";
-  const storeName =
-    import.meta.env.VITE_STORE_NAME || "Girls Fashion Store";
+  const [storeUpiId, setStoreUpiId] = useState(
+    import.meta.env.VITE_STORE_UPI_ID || ""
+  );
+  const [storeName, setStoreName] = useState(
+    import.meta.env.VITE_STORE_NAME || "Girls Fashion Store"
+  );
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const { data } = await api.get("/orders/payment-config");
+        if (data?.upiId) {
+          setStoreUpiId(data.upiId);
+        }
+        if (data?.storeName) {
+          setStoreName(data.storeName);
+        }
+      } catch (err) {
+        // Fallback to existing state
+      }
+    };
+    fetchConfig();
+  }, []);
 
   const [formData, setFormData] = useState({
     phone: "",
@@ -37,15 +56,19 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
 
   // Dynamic UPI URI for real app intent & QR Code
-  const upiUri = `upi://pay?pa=${encodeURIComponent(
-    storeUpiId,
-  )}&pn=${encodeURIComponent(storeName)}&am=${cartTotal}&cu=INR&tn=${encodeURIComponent(
-    "Order Payment",
-  )}`;
+  const upiUri = storeUpiId
+    ? `upi://pay?pa=${encodeURIComponent(
+        storeUpiId,
+      )}&pn=${encodeURIComponent(storeName)}&am=${cartTotal}&cu=INR&tn=${encodeURIComponent(
+        "Order Payment",
+      )}`
+    : "";
 
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=${encodeURIComponent(
-    upiUri,
-  )}`;
+  const qrCodeUrl = storeUpiId
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=${encodeURIComponent(
+        upiUri,
+      )}`
+    : "";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -280,11 +303,17 @@ const Checkout = () => {
                       {/* Step A: Scan & Pay */}
                       <div className="bg-white p-4 rounded-xl border border-brand-200 flex flex-col sm:flex-row items-center gap-5">
                         <div className="p-2 bg-gray-50 rounded-xl border border-gray-200 shrink-0 text-center">
-                          <img
-                            src={qrCodeUrl}
-                            alt="Scan UPI QR Code"
-                            className="w-36 h-36 mx-auto object-contain"
-                          />
+                          {qrCodeUrl ? (
+                            <img
+                              src={qrCodeUrl}
+                              alt="Scan UPI QR Code"
+                              className="w-36 h-36 mx-auto object-contain"
+                            />
+                          ) : (
+                            <div className="w-36 h-36 flex items-center justify-center text-xs text-gray-400 border border-dashed border-gray-300 rounded-lg">
+                              Set UPI ID in .env
+                            </div>
+                          )}
                           <p className="text-[10px] text-gray-500 mt-1 font-medium flex items-center justify-center gap-1">
                             <QrCode size={12} /> Scan with any UPI app
                           </p>
@@ -302,28 +331,32 @@ const Checkout = () => {
                             <span className="text-xs text-gray-500 font-medium">Store UPI ID:</span>
                             <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
                               <code className="bg-gray-100 text-brand-900 font-mono text-xs sm:text-sm px-2.5 py-1 rounded border border-gray-200">
-                                {storeUpiId}
+                                {storeUpiId || "Please set STORE_UPI_ID in .env"}
                               </code>
-                              <button
-                                type="button"
-                                onClick={handleCopyUpi}
-                                className="text-xs bg-brand-50 hover:bg-brand-100 text-brand-900 p-1.5 rounded border border-brand-200 flex items-center gap-1 transition-colors"
-                                title="Copy UPI ID"
-                              >
-                                {copiedUpi ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
-                              </button>
+                              {storeUpiId && (
+                                <button
+                                  type="button"
+                                  onClick={handleCopyUpi}
+                                  className="text-xs bg-brand-50 hover:bg-brand-100 text-brand-900 p-1.5 rounded border border-brand-200 flex items-center gap-1 transition-colors"
+                                  title="Copy UPI ID"
+                                >
+                                  {copiedUpi ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+                                </button>
+                              )}
                             </div>
                           </div>
 
                           {/* Mobile Intent Button */}
-                          <div className="pt-1">
-                            <a
-                              href={upiUri}
-                              className="inline-flex items-center justify-center gap-2 bg-brand-900 text-white text-xs font-semibold py-2 px-4 rounded-lg hover:bg-black transition-colors shadow-sm"
-                            >
-                              <ExternalLink size={14} /> Open in UPI App (Mobile)
-                            </a>
-                          </div>
+                          {upiUri && (
+                            <div className="pt-1">
+                              <a
+                                href={upiUri}
+                                className="inline-flex items-center justify-center gap-2 bg-brand-900 text-white text-xs font-semibold py-2 px-4 rounded-lg hover:bg-black transition-colors shadow-sm"
+                              >
+                                <ExternalLink size={14} /> Open in UPI App (Mobile)
+                              </a>
+                            </div>
+                          )}
                         </div>
                       </div>
 

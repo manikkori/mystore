@@ -97,3 +97,11 @@ exports.getMyOrders = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getPaymentConfig = (req, res) => {
+  res.status(200).json({
+    success: true,
+    upiId: process.env.STORE_UPI_ID || "",
+    storeName: process.env.STORE_NAME || "Girls Fashion Store",
+  });
+};
