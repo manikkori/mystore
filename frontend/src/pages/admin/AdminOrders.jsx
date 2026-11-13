@@ -81,7 +81,25 @@ const AdminOrders = () => {
                   </div>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-800">{order.user?.name || "Unknown"}</td>
-                <td className="px-6 py-4 text-sm font-medium">₹{order.totalPrice.toLocaleString("en-IN")}</td>
+                <td className="px-6 py-4 text-sm font-medium">
+                  <p className="font-bold text-gray-900">
+                    ₹{order.totalPrice.toLocaleString("en-IN")}
+                  </p>
+                  {order.paymentMethod === "Online" || order.paymentStatus === "Paid" ? (
+                    <span className="inline-block mt-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                      Online (Paid)
+                    </span>
+                  ) : (
+                    <span className="inline-block mt-1.5 text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                      COD (Pending)
+                    </span>
+                  )}
+                  {order.paymentDetails?.transactionId && (
+                    <p className="text-[10px] text-gray-400 font-mono mt-0.5">
+                      {order.paymentDetails.transactionId}
+                    </p>
+                  )}
+                </td>
                 <td className="px-6 py-4">
                   <select
                     value={order.status}
