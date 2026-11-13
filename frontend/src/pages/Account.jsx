@@ -223,14 +223,19 @@ const Account = () => {
 
                         {/* Payment Status Badge */}
                         <div>
-                          {isPaid ? (
+                          {order.paymentStatus === "Paid" ? (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full text-xs font-semibold">
                               <CheckCircle2 size={14} className="text-emerald-600" />
-                              Paid Online
+                              Payment Verified
+                            </span>
+                          ) : order.paymentMethod === "UPI" || order.paymentMethod === "Online" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full text-xs font-semibold">
+                              <Clock size={14} className="text-amber-600" />
+                              UPI Verification Pending
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full text-xs font-semibold">
-                              <Banknote size={14} className="text-amber-600" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-800 border border-gray-200 rounded-full text-xs font-semibold">
+                              <Banknote size={14} className="text-gray-600" />
                               Pay on Delivery (COD)
                             </span>
                           )}
@@ -294,9 +299,11 @@ const Account = () => {
                               ? "bg-emerald-50 text-emerald-900 border border-emerald-100"
                               : order.status === "Shipped"
                                 ? "bg-purple-50 text-purple-900 border border-purple-100"
-                                : isPaid
-                                  ? "bg-blue-50 text-blue-900 border border-blue-100"
-                                  : "bg-amber-50 text-amber-900 border border-amber-100"
+                                : order.paymentStatus === "Paid"
+                                  ? "bg-emerald-50 text-emerald-900 border border-emerald-100"
+                                  : order.paymentMethod === "UPI" || order.paymentMethod === "Online"
+                                    ? "bg-amber-50 text-amber-900 border border-amber-200"
+                                    : "bg-blue-50 text-blue-900 border border-blue-100"
                           }`}
                         >
                           {order.status === "Delivered" ? (
@@ -313,18 +320,25 @@ const Account = () => {
                                 <strong>Package Dispatched:</strong> Your order is on the way to your shipping address.
                               </span>
                             </>
-                          ) : isPaid ? (
+                          ) : order.paymentStatus === "Paid" ? (
                             <>
-                              <ShieldCheck size={18} className="text-blue-600 shrink-0" />
+                              <ShieldCheck size={18} className="text-emerald-600 shrink-0" />
                               <span>
-                                <strong>Payment Verified:</strong> ₹{order.totalPrice.toLocaleString("en-IN")} received via Online Payment. We are preparing your order for dispatch.
+                                <strong>Payment Verified:</strong> ₹{order.totalPrice.toLocaleString("en-IN")} payment received and confirmed. Seller is preparing your parcel for dispatch.
+                              </span>
+                            </>
+                          ) : order.paymentMethod === "UPI" || order.paymentMethod === "Online" ? (
+                            <>
+                              <Clock size={18} className="text-amber-600 shrink-0" />
+                              <span>
+                                <strong>UPI Payment Under Verification:</strong> Your UTR Ref (<code>{order.paymentDetails?.utrNumber || "Pending"}</code>) is submitted. The seller will match it with their bank/UPI records before dispatch.
                               </span>
                             </>
                           ) : (
                             <>
-                              <Clock size={18} className="text-amber-600 shrink-0" />
+                              <Banknote size={18} className="text-blue-600 shrink-0" />
                               <span>
-                                <strong>Cash on Delivery Confirmed:</strong> Please keep ₹{order.totalPrice.toLocaleString("en-IN")} cash or UPI ready when delivery arrives.
+                                <strong>Cash on Delivery:</strong> Please keep ₹{order.totalPrice.toLocaleString("en-IN")} cash or UPI ready when delivery partner arrives at your address.
                               </span>
                             </>
                           )}

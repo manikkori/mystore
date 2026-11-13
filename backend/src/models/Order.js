@@ -19,18 +19,19 @@ const orderSchema = new mongoose.Schema(
     totalPrice: { type: Number, required: true },
     paymentMethod: {
       type: String,
-      enum: ["COD", "Online"],
+      enum: ["COD", "UPI", "Online"],
       default: "COD",
     },
     paymentStatus: {
       type: String,
-      enum: ["Pending", "Paid", "Failed"],
+      enum: ["Pending", "Verification Pending", "Paid", "Failed"],
       default: "Pending",
     },
     paymentDetails: {
-      transactionId: { type: String },
-      paymentType: { type: String },
-      paidAt: { type: Date },
+      utrNumber: { type: String },
+      upiId: { type: String },
+      submittedAt: { type: Date },
+      verifiedAt: { type: Date },
     },
     status: {
       type: String,

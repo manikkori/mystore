@@ -32,6 +32,22 @@ const AdminOrders = () => {
     }
   };
 
+  const handleVerifyPayment = async (orderId) => {
+    if (!window.confirm("Have you confirmed receiving this payment in your bank/UPI app?")) {
+      return;
+    }
+    try {
+      await api.put(`/admin/orders/${orderId}/status`, {
+        paymentStatus: "Paid",
+        status: "Confirmed",
+      });
+      toast.success("Payment marked as Verified & Paid!");
+      fetchOrders();
+    } catch (error) {
+      toast.error("Failed to update payment status");
+    }
+  };
+
   if (loading) return <div>Loading orders...</div>;
 
   return (
@@ -82,22 +98,55 @@ const AdminOrders = () => {
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-800">{order.user?.name || "Unknown"}</td>
                 <td className="px-6 py-4 text-sm font-medium">
-                  <p className="font-bold text-gray-900">
+                  <p className="font-bold text-gray-900 text-base">
                     ₹{order.totalPrice.toLocaleString("en-IN")}
                   </p>
-                  {order.paymentMethod === "Online" || order.paymentStatus === "Paid" ? (
-                    <span className="inline-block mt-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                      Online (Paid)
-                    </span>
+
+                  {order.paymentMethod === "UPI" || order.paymentMethod === "Online" ? (
+                    <div className="mt-1.5 space-y-1.5">
+                      {order.paymentStatus === "Paid" ? (
+                        <span className="inline-block text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                          ✓ UPI Paid (Verified)
+                        </span>
+                      ) : (
+                        <div className="space-y-1">
+                          <span className="inline-block text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                            ⏳ Verification Pending
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleVerifyPayment(order._id)}
+                            className="block text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded shadow-sm transition-colors"
+                          >
+                            ✓ Confirm Payment Received
+                          </button>
+                        </div>
+                      )}
+                      {order.paymentDetails?.utrNumber && (
+                        <p className="text-xs font-mono font-bold text-brand-900 bg-brand-50 px-2 py-0.5 rounded border border-brand-200 inline-block">
+                          UTR: {order.paymentDetails.utrNumber}
+                        </p>
+                      )}
+                    </div>
                   ) : (
-                    <span className="inline-block mt-1.5 text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
-                      COD (Pending)
-                    </span>
-                  )}
-                  {order.paymentDetails?.transactionId && (
-                    <p className="text-[10px] text-gray-400 font-mono mt-0.5">
-                      {order.paymentDetails.transactionId}
-                    </p>
+                    <div className="mt-1.5 space-y-1">
+                      <span className="inline-block text-[11px] font-semibold text-gray-800 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-md">
+                        Cash on Delivery
+                      </span>
+                      {order.paymentStatus === "Paid" ? (
+                        <span className="block text-[10px] text-emerald-700 font-semibold">
+                          (Cash Collected)
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleVerifyPayment(order._id)}
+                          className="block text-[10px] font-medium text-gray-500 hover:text-emerald-700 underline"
+                        >
+                          Mark Cash Collected
+                        </button>
+                      )}
+                    </div>
                   )}
                 </td>
                 <td className="px-6 py-4">

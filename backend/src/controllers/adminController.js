@@ -44,18 +44,41 @@ exports.getOrderDetailsWithPII = async (req, res, next) => {
 
 exports.updateOrderStatus = async (req, res, next) => {
   try {
-    const { status } = req.body;
-    const validStatuses = ["Pending", "Confirmed", "Shipped", "Delivered"];
+    const { status, paymentStatus } = req.body;
+    const updateData = {};
 
-    if (!validStatuses.includes(status)) {
-      return next(new AppError("Invalid status", 400));
+    if (status) {
+      const validStatuses = ["Pending", "Confirmed", "Shipped", "Delivered"];
+      if (!validStatuses.includes(status)) {
+        return next(new AppError("Invalid status", 400));
+      }
+      updateData.status = status;
     }
 
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true, runValidators: true },
-    );
+    if (paymentStatus) {
+      const validPaymentStatuses = [
+        "Pending",
+        "Verification Pending",
+        "Paid",
+        "Failed",
+      ];
+      if (!validPaymentStatuses.includes(paymentStatus)) {
+        return next(new AppError("Invalid payment status", 400));
+      }
+      updateData.paymentStatus = paymentStatus;
+      if (paymentStatus === "Paid") {
+        updateData["paymentDetails.verifiedAt"] = new Date();
+      }
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return next(new AppError("No update data provided", 400));
+    }
+
+    const order = await Order.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!order) {
       return next(new AppError("Order not found", 404));
@@ -65,7 +88,7 @@ exports.updateOrderStatus = async (req, res, next) => {
       adminId: req.user._id,
       action: "UPDATE_ORDER_STATUS",
       targetOrderId: order._id,
-      accessedData: { newStatus: status },
+      accessedData: updateData,
     });
 
     res.status(200).json({ success: true, order });

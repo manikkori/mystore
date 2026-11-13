@@ -2,13 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Trash2,
-  CreditCard,
+  Smartphone,
   Banknote,
   ShieldCheck,
   CheckCircle2,
-  Lock,
-  Smartphone,
+  Copy,
   Check,
+  ExternalLink,
+  AlertCircle,
+  QrCode,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../services/api";
@@ -20,22 +22,40 @@ const Checkout = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const storeUpiId =
+    import.meta.env.VITE_STORE_UPI_ID || "9876543210@paytm";
+  const storeName =
+    import.meta.env.VITE_STORE_NAME || "Girls Fashion Store";
+
   const [formData, setFormData] = useState({
     phone: "",
     shippingAddress: "",
   });
-  const [paymentMethod, setPaymentMethod] = useState("Online"); // "Online" or "COD"
-  const [onlineType, setOnlineType] = useState("UPI"); // "UPI", "Card", "NetBanking"
-  const [upiId, setUpiId] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("UPI"); // "UPI" or "COD"
+  const [utrNumber, setUtrNumber] = useState("");
+  const [copiedUpi, setCopiedUpi] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Online Payment Gateway Modal state
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  // Dynamic UPI URI for real app intent & QR Code
+  const upiUri = `upi://pay?pa=${encodeURIComponent(
+    storeUpiId,
+  )}&pn=${encodeURIComponent(storeName)}&am=${cartTotal}&cu=INR&tn=${encodeURIComponent(
+    "Order Payment",
+  )}`;
+
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=${encodeURIComponent(
+    upiUri,
+  )}`;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleCopyUpi = () => {
+    navigator.clipboard.writeText(storeUpiId);
+    setCopiedUpi(true);
+    toast.success("UPI ID copied to clipboard!");
+    setTimeout(() => setCopiedUpi(false), 2500);
   };
 
   const validateForm = () => {
@@ -58,26 +78,22 @@ const Checkout = () => {
       return false;
     }
 
+    if (paymentMethod === "UPI") {
+      if (!utrNumber || utrNumber.trim().length < 8) {
+        toast.error(
+          "Please enter the 12-digit UPI Reference / UTR Number from your payment app",
+        );
+        return false;
+      }
+    }
+
     return true;
   };
 
-  const handlePlaceOrder = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    if (paymentMethod === "Online") {
-      // Trigger Flipkart / Amazon style secure online payment modal
-      setShowPaymentModal(true);
-    } else {
-      // Direct Cash on Delivery
-      await submitOrder({
-        method: "COD",
-        details: null,
-      });
-    }
-  };
-
-  const submitOrder = async ({ method, details }) => {
     setLoading(true);
     try {
       const orderItems = cart.map((item) => ({
@@ -90,14 +106,20 @@ const Checkout = () => {
         orderItems,
         shippingAddress: formData.shippingAddress,
         phone: formData.phone,
-        paymentMethod: method,
-        paymentDetails: details,
+        paymentMethod,
+        utrNumber: paymentMethod === "UPI" ? utrNumber.trim() : undefined,
+        upiId: paymentMethod === "UPI" ? storeUpiId : undefined,
       });
 
-      if (method === "Online") {
-        toast.success("Payment verified! Your order has been placed.");
+      if (paymentMethod === "UPI") {
+        toast.success(
+          "Order placed! Payment verification pending with seller.",
+          { duration: 4000 },
+        );
       } else {
-        toast.success("Order placed successfully! Pay on delivery.");
+        toast.success(
+          "Order placed successfully! Cash will be collected on delivery.",
+        );
       }
 
       clearCart();
@@ -110,28 +132,7 @@ const Checkout = () => {
       );
     } finally {
       setLoading(false);
-      setShowPaymentModal(false);
-      setIsProcessingPayment(false);
-      setPaymentSuccess(false);
     }
-  };
-
-  const processOnlinePayment = () => {
-    setIsProcessingPayment(true);
-    // Simulate secure bank gateway transaction processing
-    setTimeout(() => {
-      setPaymentSuccess(true);
-      setTimeout(async () => {
-        const txnId = `TXN_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
-        await submitOrder({
-          method: "Online",
-          details: {
-            transactionId: txnId,
-            paymentType: onlineType,
-          },
-        });
-      }, 1000);
-    }, 1500);
   };
 
   if (cart.length === 0) {
@@ -140,7 +141,7 @@ const Checkout = () => {
         <h2 className="text-2xl font-display font-bold mb-4 text-brand-900">
           Your cart is empty
         </h2>
-        <p className="text-gray-500 mb-6">Looks like you haven't added anything to your cart yet.</p>
+        <p className="text-gray-500 mb-6">Looks like you haven't added any items yet.</p>
         <button
           onClick={() => navigate("/")}
           className="bg-brand-900 text-white px-6 py-3 rounded-full font-medium hover:bg-black transition-colors"
@@ -157,23 +158,23 @@ const Checkout = () => {
         <h1 className="text-3xl font-display font-bold text-brand-900">
           Checkout
         </h1>
-        <span className="text-sm bg-brand-100 text-brand-900 font-medium px-3 py-1 rounded-full">
-          Safe & Secure
+        <span className="text-xs bg-brand-100 text-brand-900 font-semibold px-3 py-1 rounded-full">
+          Safe & Verified
         </span>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-        {/* Left Column: Delivery Details & Payment Method */}
+        {/* Left Column: Form & Payment */}
         <div className="w-full lg:w-3/5 order-2 lg:order-1">
-          <form onSubmit={handlePlaceOrder} className="space-y-6">
-            {/* Step 1: Delivery Address */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Step 1: Delivery Details */}
             <div className="bg-white p-6 sm:p-7 rounded-2xl border border-brand-100 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold font-display text-gray-900 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-brand-900 text-white text-xs flex items-center justify-center font-bold">
                     1
                   </span>
-                  Delivery Address
+                  Delivery Details
                 </h2>
                 {user && (
                   <span className="text-xs text-gray-500 font-medium">
@@ -198,12 +199,12 @@ const Checkout = () => {
                       onChange={handleChange}
                       placeholder="9876543210"
                       maxLength={10}
-                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-900 focus:border-brand-900 outline-none transition-all font-mono"
+                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-900 focus:border-brand-900 outline-none transition-all font-mono text-sm"
                       required
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Required for delivery updates and contact.
+                    We will send delivery status updates to this number.
                   </p>
                 </div>
 
@@ -216,7 +217,7 @@ const Checkout = () => {
                     value={formData.shippingAddress}
                     onChange={handleChange}
                     rows="3"
-                    placeholder="House / Flat No., Building, Street, Landmark, City, State, Pincode"
+                    placeholder="House/Flat No., Building, Street, Landmark, City, State, Pincode"
                     className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-900 focus:border-brand-900 outline-none transition-all resize-none text-sm"
                     required
                   ></textarea>
@@ -224,26 +225,26 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* Step 2: Payment Options (Amazon / Flipkart Style) */}
+            {/* Step 2: Payment Method */}
             <div className="bg-white p-6 sm:p-7 rounded-2xl border border-brand-100 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold font-display text-gray-900 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-brand-900 text-white text-xs flex items-center justify-center font-bold">
                     2
                   </span>
-                  Select Payment Option
+                  Choose Payment Method
                 </h2>
                 <div className="flex items-center gap-1 text-xs text-green-700 font-medium">
-                  <ShieldCheck size={16} /> 100% Protected
+                  <ShieldCheck size={16} /> Secure Verification
                 </div>
               </div>
 
-              <div className="space-y-3">
-                {/* Option 1: Online Payment */}
+              <div className="space-y-4">
+                {/* Option 1: Real UPI Payment */}
                 <div
-                  onClick={() => setPaymentMethod("Online")}
-                  className={`p-4 sm:p-5 rounded-xl border-2 transition-all cursor-pointer flex flex-col gap-3 ${
-                    paymentMethod === "Online"
+                  onClick={() => setPaymentMethod("UPI")}
+                  className={`p-4 sm:p-5 rounded-2xl border-2 transition-all cursor-pointer ${
+                    paymentMethod === "UPI"
                       ? "border-brand-900 bg-brand-50/40 shadow-sm"
                       : "border-gray-200 hover:border-gray-300 bg-white"
                   }`}
@@ -252,76 +253,103 @@ const Checkout = () => {
                     <div className="flex items-center gap-3">
                       <div
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === "Online"
+                          paymentMethod === "UPI"
                             ? "border-brand-900"
                             : "border-gray-400"
                         }`}
                       >
-                        {paymentMethod === "Online" && (
+                        {paymentMethod === "UPI" && (
                           <div className="w-2.5 h-2.5 rounded-full bg-brand-900" />
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <CreditCard size={20} className="text-brand-900" />
+                        <Smartphone size={20} className="text-brand-900" />
                         <span className="font-semibold text-gray-900 text-sm sm:text-base">
-                          Online Payment (UPI, Cards, NetBanking)
+                          Direct UPI (Google Pay, PhonePe, Paytm, QR)
                         </span>
                       </div>
                     </div>
                     <span className="text-[11px] font-bold uppercase tracking-wider bg-green-100 text-green-800 px-2 py-0.5 rounded-md">
-                      Recommended
+                      Fastest
                     </span>
                   </div>
 
-                  <p className="text-xs text-gray-500 pl-8">
-                    Pay securely using Google Pay, PhonePe, Paytm, Debit/Credit Card or Net Banking.
-                  </p>
+                  {/* Real UPI Payment Details & QR Code */}
+                  {paymentMethod === "UPI" && (
+                    <div className="mt-4 pt-4 border-t border-brand-100 space-y-4 cursor-default" onClick={(e) => e.stopPropagation()}>
+                      {/* Step A: Scan & Pay */}
+                      <div className="bg-white p-4 rounded-xl border border-brand-200 flex flex-col sm:flex-row items-center gap-5">
+                        <div className="p-2 bg-gray-50 rounded-xl border border-gray-200 shrink-0 text-center">
+                          <img
+                            src={qrCodeUrl}
+                            alt="Scan UPI QR Code"
+                            className="w-36 h-36 mx-auto object-contain"
+                          />
+                          <p className="text-[10px] text-gray-500 mt-1 font-medium flex items-center justify-center gap-1">
+                            <QrCode size={12} /> Scan with any UPI app
+                          </p>
+                        </div>
 
-                  {/* Sub-options for Online Payment */}
-                  {paymentMethod === "Online" && (
-                    <div className="mt-2 pl-8 pt-3 border-t border-brand-100 grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOnlineType("UPI");
-                        }}
-                        className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
-                          onlineType === "UPI"
-                            ? "bg-brand-900 text-white border-brand-900 shadow-sm"
-                            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-                        }`}
-                      >
-                        <Smartphone size={14} /> UPI
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOnlineType("Card");
-                        }}
-                        className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
-                          onlineType === "Card"
-                            ? "bg-brand-900 text-white border-brand-900 shadow-sm"
-                            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-                        }`}
-                      >
-                        <CreditCard size={14} /> Cards
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOnlineType("NetBanking");
-                        }}
-                        className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
-                          onlineType === "NetBanking"
-                            ? "bg-brand-900 text-white border-brand-900 shadow-sm"
-                            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-                        }`}
-                      >
-                        <Lock size={14} /> Net Banking
-                      </button>
+                        <div className="space-y-2.5 text-center sm:text-left w-full">
+                          <div>
+                            <span className="text-xs text-gray-500 font-medium">Payable Amount:</span>
+                            <p className="text-2xl font-bold text-brand-900 font-mono">
+                              ₹{cartTotal.toLocaleString("en-IN")}
+                            </p>
+                          </div>
+
+                          <div>
+                            <span className="text-xs text-gray-500 font-medium">Store UPI ID:</span>
+                            <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
+                              <code className="bg-gray-100 text-brand-900 font-mono text-xs sm:text-sm px-2.5 py-1 rounded border border-gray-200">
+                                {storeUpiId}
+                              </code>
+                              <button
+                                type="button"
+                                onClick={handleCopyUpi}
+                                className="text-xs bg-brand-50 hover:bg-brand-100 text-brand-900 p-1.5 rounded border border-brand-200 flex items-center gap-1 transition-colors"
+                                title="Copy UPI ID"
+                              >
+                                {copiedUpi ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Mobile Intent Button */}
+                          <div className="pt-1">
+                            <a
+                              href={upiUri}
+                              className="inline-flex items-center justify-center gap-2 bg-brand-900 text-white text-xs font-semibold py-2 px-4 rounded-lg hover:bg-black transition-colors shadow-sm"
+                            >
+                              <ExternalLink size={14} /> Open in UPI App (Mobile)
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Step B: Enter UTR Number */}
+                      <div className="bg-brand-50/60 p-4 rounded-xl border border-brand-200 space-y-2">
+                        <label className="block text-xs font-bold text-brand-900 uppercase tracking-wide">
+                          Step 2: Enter 12-Digit UPI Reference / UTR Number <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={utrNumber}
+                          onChange={(e) =>
+                            setUtrNumber(e.target.value.replace(/[^0-9a-zA-Z]/g, ""))
+                          }
+                          placeholder="e.g. 432109876543 (from payment receipt/SMS)"
+                          maxLength={16}
+                          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 font-mono text-sm focus:ring-2 focus:ring-brand-900 outline-none bg-white"
+                          required={paymentMethod === "UPI"}
+                        />
+                        <div className="flex items-start gap-1.5 text-[11px] text-gray-600 leading-tight">
+                          <AlertCircle size={14} className="text-amber-600 shrink-0 mt-0.5" />
+                          <span>
+                            <strong>Important:</strong> After completing payment in your GPay/PhonePe/Paytm app, copy the 12-digit UTR/Ref number and paste it here so the seller can verify your payment before dispatching.
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -329,7 +357,7 @@ const Checkout = () => {
                 {/* Option 2: Cash on Delivery */}
                 <div
                   onClick={() => setPaymentMethod("COD")}
-                  className={`p-4 sm:p-5 rounded-xl border-2 transition-all cursor-pointer flex flex-col gap-2 ${
+                  className={`p-4 sm:p-5 rounded-2xl border-2 transition-all cursor-pointer ${
                     paymentMethod === "COD"
                       ? "border-brand-900 bg-brand-50/40 shadow-sm"
                       : "border-gray-200 hover:border-gray-300 bg-white"
@@ -359,13 +387,13 @@ const Checkout = () => {
                       Cash / UPI at doorstep
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 pl-8">
-                    Pay with cash or UPI to the delivery partner when your package arrives.
+                  <p className="text-xs text-gray-500 pl-8 mt-1">
+                    Pay with cash or scan delivery partner's QR code when package is delivered.
                   </p>
                 </div>
               </div>
 
-              {/* Action Button */}
+              {/* Submit Button */}
               <div className="mt-6 pt-4 border-t border-gray-100">
                 <button
                   type="submit"
@@ -373,22 +401,22 @@ const Checkout = () => {
                   className="w-full bg-brand-900 text-white py-4 rounded-xl font-semibold text-base sm:text-lg hover:bg-black transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {loading ? (
-                    "Processing..."
-                  ) : paymentMethod === "Online" ? (
+                    "Placing Order..."
+                  ) : paymentMethod === "UPI" ? (
                     <>
-                      <Lock size={18} />
-                      Proceed to Pay ₹{cartTotal.toLocaleString("en-IN")}
+                      <CheckCircle2 size={18} />
+                      Submit Order with UPI Verification (₹{cartTotal.toLocaleString("en-IN")})
                     </>
                   ) : (
                     <>
-                      <CheckCircle2 size={18} />
+                      <Banknote size={18} />
                       Place Order (Cash on Delivery)
                     </>
                   )}
                 </button>
                 <div className="flex items-center justify-center gap-2 text-xs text-gray-400 mt-3">
                   <ShieldCheck size={14} className="text-green-600" />
-                  <span>256-bit SSL Secure Encryption & Verified Checkout</span>
+                  <span>Manual Verification & Genuine Orders Guaranteed</span>
                 </div>
               </div>
             </div>
@@ -459,178 +487,6 @@ const Checkout = () => {
           </div>
         </div>
       </div>
-
-      {/* Online Payment Gateway Modal (Flipkart / Amazon style) */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
-            {/* Modal Header */}
-            <div className="bg-brand-900 text-white p-5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Lock size={18} className="text-brand-300" />
-                <h3 className="font-display font-semibold text-lg">
-                  Secure Online Payment
-                </h3>
-              </div>
-              <span className="text-xs bg-white/10 px-2.5 py-1 rounded-full text-brand-100 font-mono">
-                ₹{cartTotal.toLocaleString("en-IN")}
-              </span>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6">
-              {paymentSuccess ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-                    <Check size={36} />
-                  </div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-1">
-                    Payment Successful!
-                  </h4>
-                  <p className="text-sm text-gray-500 mb-2">
-                    Creating your order and preparing dispatch...
-                  </p>
-                  <span className="text-xs font-mono bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                    Verified by Payment Gateway
-                  </span>
-                </div>
-              ) : isProcessingPayment ? (
-                <div className="text-center py-10">
-                  <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-900 rounded-full animate-spin mx-auto mb-4" />
-                  <h4 className="text-base font-semibold text-gray-900 mb-1">
-                    Connecting to Payment Gateway...
-                  </h4>
-                  <p className="text-xs text-gray-500">
-                    Authorizing transaction securely. Please do not close this window.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-5">
-                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-gray-500">Paying To</p>
-                      <p className="font-semibold text-brand-900">
-                        Girls Fashion Store
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500">Total Payable</p>
-                      <p className="font-bold text-lg text-brand-900">
-                        ₹{cartTotal.toLocaleString("en-IN")}
-                      </p>
-                    </div>
-                  </div>
-
-                  {onlineType === "UPI" && (
-                    <div className="space-y-3">
-                      <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Enter UPI ID / VPA
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. mobileNumber@okhdfcbank"
-                        value={upiId}
-                        onChange={(e) => setUpiId(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-brand-900 outline-none"
-                      />
-                      <div className="flex gap-2">
-                        {["@okaxis", "@okhdfcbank", "@paytm", "@ybl"].map(
-                          (handle) => (
-                            <button
-                              key={handle}
-                              type="button"
-                              onClick={() => {
-                                const base = upiId.split("@")[0] || "user";
-                                setUpiId(`${base}${handle}`);
-                              }}
-                              className="text-[11px] bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded"
-                            >
-                              {handle}
-                            </button>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {onlineType === "Card" && (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
-                          Card Number
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="4532 •••• •••• 8892"
-                          maxLength={19}
-                          className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-brand-900 outline-none font-mono"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
-                            Expiry (MM/YY)
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="12/28"
-                            maxLength={5}
-                            className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-brand-900 outline-none font-mono"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
-                            CVV
-                          </label>
-                          <input
-                            type="password"
-                            placeholder="•••"
-                            maxLength={3}
-                            className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-brand-900 outline-none font-mono"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {onlineType === "NetBanking" && (
-                    <div className="space-y-2">
-                      <label className="block text-xs font-semibold text-gray-700 uppercase">
-                        Select Popular Bank
-                      </label>
-                      <select className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-brand-900 outline-none bg-white">
-                        <option>State Bank of India (SBI)</option>
-                        <option>HDFC Bank</option>
-                        <option>ICICI Bank</option>
-                        <option>Axis Bank</option>
-                        <option>Punjab National Bank</option>
-                      </select>
-                    </div>
-                  )}
-
-                  {/* Buttons */}
-                  <div className="pt-2 flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowPaymentModal(false)}
-                      className="w-1/3 py-3 border border-gray-300 rounded-xl text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={processOnlinePayment}
-                      className="w-2/3 py-3 bg-brand-900 hover:bg-black text-white rounded-xl font-semibold text-sm transition-colors shadow-md flex items-center justify-center gap-2"
-                    >
-                      <Lock size={16} /> Pay ₹{cartTotal.toLocaleString("en-IN")}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
