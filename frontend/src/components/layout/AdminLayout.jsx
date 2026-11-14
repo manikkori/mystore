@@ -18,10 +18,10 @@ const AdminLayout = () => {
     (link.path !== "/admin" && location.pathname.startsWith(link.path));
 
   return (
-    <div className="flex min-h-[85vh] flex-col md:flex-row gap-0 md:gap-6 p-0 md:p-6 w-full max-w-[1600px] mx-auto">
+    <div className="flex min-h-[85vh] flex-col md:flex-row gap-0 md:gap-6 p-0 md:p-4 lg:p-6 w-full max-w-[1600px] mx-auto">
 
       {/* ── Desktop Sidebar ───────────────────────────────── */}
-      <aside className="hidden md:block md:w-56 lg:w-64 bg-white border border-gray-200/80 rounded-2xl shadow-sm p-4 h-fit sticky top-20 shrink-0">
+      <aside className="hidden md:block md:w-56 lg:w-64 bg-white border-2 border-gray-300 rounded-2xl shadow-sm p-4 h-fit sticky top-20 shrink-0">
         <h2 className="text-base font-display font-bold text-gray-900 mb-4 px-2 uppercase tracking-wider">
           Admin Portal
         </h2>
@@ -44,7 +44,7 @@ const AdminLayout = () => {
       </aside>
 
       {/* ── Mobile Top Tab Nav (Edge-to-edge, clean & sticky) ── */}
-      <div className="md:hidden bg-white border-b border-gray-200 shadow-xs w-full overflow-x-auto no-scrollbar sticky top-14 z-30">
+      <div className="md:hidden bg-white border-b-2 border-gray-300 shadow-xs w-full overflow-x-auto no-scrollbar sticky top-14 z-30">
         <nav className="flex gap-1 p-1.5 min-w-max">
           {links.map((link) => (
             <Link
@@ -63,8 +63,8 @@ const AdminLayout = () => {
         </nav>
       </div>
 
-      {/* ── Main Content Area (Max width & minimal wasted margins on mobile) ── */}
-      <main className="flex-1 bg-white md:border md:border-gray-200/80 rounded-none md:rounded-2xl p-2.5 sm:p-5 lg:p-6 min-h-[60vh] w-full">
+      {/* ── Main Content Area (Contrast background so white cards pop) ── */}
+      <main className="flex-1 bg-[#f4f1ed] md:border-2 md:border-gray-300 rounded-none md:rounded-2xl p-3 sm:p-5 lg:p-6 min-h-[60vh] w-full">
         <Outlet />
       </main>
     </div>

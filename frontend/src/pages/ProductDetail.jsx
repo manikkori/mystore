@@ -68,6 +68,12 @@ const ProductDetail = () => {
     if (!exists) {
       addToCart(product, 1);
     }
+    if (!user) {
+      toast("Please login to complete your order", { icon: "🔐" });
+      navigate("/login", { state: { from: { pathname: "/checkout" } } });
+      return;
+    }
+    toast.success("Opening checkout...", { duration: 1200, id: "checkout-nav" });
     navigate("/checkout");
   };
 

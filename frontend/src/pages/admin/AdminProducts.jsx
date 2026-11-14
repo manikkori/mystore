@@ -47,7 +47,7 @@ const AdminProducts = () => {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden md:block overflow-x-auto bg-white rounded-xl border border-gray-100">
+      <div className="hidden md:block overflow-x-auto bg-white rounded-2xl border-2 border-gray-300 shadow-sm">
         <table className="w-full text-left font-sans">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
@@ -99,7 +99,7 @@ const AdminProducts = () => {
       {/* Mobile Cards */}
       <div className="md:hidden space-y-3">
         {products.map((product) => (
-          <div key={product._id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 flex items-center gap-3">
+          <div key={product._id} className="bg-white rounded-2xl border-2 border-gray-300 shadow-sm p-3 flex items-center gap-3">
             <img
               src={product.images?.[0]}
               alt={product.name}

@@ -60,7 +60,7 @@ const AdminDashboard = () => {
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Orders</h2>
 
         {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto bg-white rounded-xl border border-gray-100">
+        <div className="hidden md:block overflow-x-auto bg-white rounded-2xl border-2 border-gray-300 shadow-sm">
           <table className="w-full text-left font-sans">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
@@ -95,7 +95,7 @@ const AdminDashboard = () => {
         {/* Mobile Cards */}
         <div className="md:hidden space-y-3">
           {recentOrders.map((order) => (
-            <div key={order._id} className="bg-white rounded-xl border border-gray-100 p-4">
+            <div key={order._id} className="bg-white rounded-2xl border-2 border-gray-300 shadow-sm p-4">
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <p className="text-[10px] font-mono text-gray-400 truncate max-w-[160px]">#{order._id}</p>
@@ -121,7 +121,7 @@ const AdminDashboard = () => {
 };
 
 const StatCard = ({ icon, title, value, color }) => (
-  <div className="p-4 sm:p-5 rounded-xl border border-gray-100 bg-white shadow-sm flex items-center gap-3">
+  <div className="p-4 sm:p-5 rounded-2xl border-2 border-gray-300 bg-white shadow-sm flex items-center gap-3">
     <div className={`p-2.5 sm:p-3 rounded-xl shrink-0 ${color}`}>{icon}</div>
     <div className="min-w-0">
       <p className="text-xs text-gray-500 font-medium truncate">{title}</p>

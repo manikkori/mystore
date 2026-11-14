@@ -51,7 +51,7 @@ const AdminUsers = () => {
       <h1 className="text-2xl font-display font-bold text-brand-900 mb-6">Users Management</h1>
 
       {/* Desktop Table */}
-      <div className="hidden md:block overflow-x-auto bg-white rounded-xl border border-gray-100">
+      <div className="hidden md:block overflow-x-auto bg-white rounded-2xl border-2 border-gray-300 shadow-sm">
         <table className="w-full text-left font-sans">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
@@ -94,7 +94,7 @@ const AdminUsers = () => {
       {/* Mobile Cards */}
       <div className="md:hidden space-y-3">
         {users.map((user) => (
-          <div key={user._id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <div key={user._id} className="bg-white rounded-2xl border-2 border-gray-300 shadow-sm p-4">
             <div className="flex items-start justify-between">
               <div className="min-w-0">
                 <p className="font-semibold text-gray-800 text-sm truncate">

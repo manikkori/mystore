@@ -17,22 +17,26 @@ import api from "../services/api";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
+let cachedPaymentConfig = null;
+
 const Checkout = () => {
   const { cart, cartTotal, clearCart, removeFromCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const [storeUpiId, setStoreUpiId] = useState(
-    import.meta.env.VITE_STORE_UPI_ID || ""
+    cachedPaymentConfig?.upiId || import.meta.env.VITE_STORE_UPI_ID || ""
   );
   const [storeName, setStoreName] = useState(
-    import.meta.env.VITE_STORE_NAME || "Girls Fashion Store"
+    cachedPaymentConfig?.storeName || import.meta.env.VITE_STORE_NAME || "Girls Fashion Store"
   );
 
   useEffect(() => {
+    if (cachedPaymentConfig) return;
     const fetchConfig = async () => {
       try {
         const { data } = await api.get("/orders/payment-config");
+        cachedPaymentConfig = data;
         if (data?.upiId) {
           setStoreUpiId(data.upiId);
         }
