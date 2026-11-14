@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingBag, User, Menu, LogOut, Shield, X, Phone } from "lucide-react";
+import { ShoppingBag, User, Menu, LogOut, Shield, X, Search } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -21,140 +21,160 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-brand-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-4">
-            <button 
-              className="sm:hidden p-2 -ml-2 text-brand-900"
+    <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-14 sm:h-16">
+
+          {/* Left: Hamburger (mobile) */}
+          <div className="flex items-center gap-3">
+            <button
+              className="sm:hidden p-1.5 -ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Menu"
             >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
+
+            {/* Logo */}
             <Link
               to="/"
-              className="font-display font-bold text-2xl tracking-tighter text-pink-600"
+              className="font-display font-bold text-xl sm:text-2xl tracking-tighter text-[#1a1a2e]"
             >
               GIRLS FASHION
             </Link>
           </div>
 
-          <div className="hidden sm:flex items-center gap-8 font-medium text-sm tracking-wide">
-            <Link to="/" className="hover:text-pink-600 transition-colors">
+          {/* Center: Desktop Nav Links */}
+          <div className="hidden sm:flex items-center gap-7 font-medium text-sm text-gray-600">
+            <Link to="/" className="hover:text-[#1a1a2e] transition-colors">
               Home
             </Link>
             {user?.role === "admin" && (
               <Link
                 to="/admin"
-                className="hover:text-brand-900 flex items-center gap-1 transition-colors font-bold"
+                className="flex items-center gap-1.5 text-brand-700 hover:text-brand-900 font-semibold transition-colors"
               >
-                <Shield size={16} /> Admin Panel
+                <Shield size={15} />
+                Admin
               </Link>
             )}
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* Right: Icons */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Cart */}
+            <Link
+              to="/checkout"
+              className="relative p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Cart"
+            >
+              <ShoppingBag size={20} />
+              {cartCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 bg-brand-700 text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Account (desktop) */}
             {user ? (
-              <div className="hidden sm:flex items-center gap-4">
+              <div className="hidden sm:flex items-center gap-1">
                 <Link
                   to="/account"
-                  className="flex items-center gap-1 text-sm font-medium hover:text-brand-900 transition-colors"
+                  className="flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-[#1a1a2e] p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <User size={18} /> My Account
+                  <User size={18} />
+                  <span>Account</span>
                 </Link>
                 <button
                   onClick={handleLogout}
                   title="Logout"
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                 >
-                  <LogOut size={20} />
+                  <LogOut size={18} />
                 </button>
               </div>
             ) : (
               <Link
                 to="/login"
-                className="hidden sm:flex items-center gap-1 text-sm font-medium hover:text-brand-900 transition-colors"
+                className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-[#1a1a2e] p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <User size={18} /> Login
+                <User size={18} />
+                <span>Login</span>
               </Link>
             )}
-
-            {/* Cart Icon - Desktop Only */}
-            <Link
-              to="/checkout"
-              className="relative p-2 text-brand-900 hover:bg-brand-50 rounded-full transition-colors hidden sm:block"
-            >
-              <ShoppingBag size={20} />
-              {cartCount > 0 && (
-                <span className="absolute top-0 right-0 bg-brand-900 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-
-            {/* Call Icon - Mobile Only */}
-            <a
-              href={`tel:${import.meta.env.VITE_STORE_PHONE || "+919876543210"}`}
-              className="p-2 text-brand-900 hover:bg-brand-50 rounded-full transition-colors sm:hidden"
-            >
-              <Phone size={20} />
-            </a>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* ─── Mobile Slide-down Menu ─────────────────────────────── */}
       {isMobileMenuOpen && (
-        <div className="sm:hidden bg-white border-b border-brand-100 absolute w-full left-0 py-4 px-4 shadow-lg flex flex-col gap-4 z-50 max-h-[80vh] overflow-y-auto">
-          <Link 
-            to="/" 
-            className="text-lg font-medium text-gray-800 hover:text-pink-600"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Home
-          </Link>
-          
-          {user?.role === "admin" && (
-            <div className="flex flex-col gap-3 bg-brand-50 p-4 rounded-xl mt-2">
-              <span className="text-sm font-bold text-brand-900 uppercase tracking-wider mb-1 flex items-center gap-2">
-                <Shield size={16} /> Admin Controls
-              </span>
-              <Link to="/admin" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
-              <Link to="/admin/products" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Products</Link>
-              <Link to="/admin/add-product" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Add Product</Link>
-              <Link to="/admin/orders" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Orders</Link>
-              <Link to="/admin/users" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Users</Link>
-              <Link to="/admin/audit-logs" className="text-base font-medium text-gray-700 hover:text-brand-900" onClick={() => setIsMobileMenuOpen(false)}>Audit Logs</Link>
-            </div>
-          )}
-
-          <div className="h-px bg-gray-100 my-2"></div>
-
-          {user ? (
-            <>
-              <Link
-                to="/account"
-                className="text-lg font-medium text-gray-800 flex items-center gap-2"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <User size={20} /> My Account
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="text-lg font-medium text-red-600 flex items-center gap-2 text-left"
-              >
-                <LogOut size={20} /> Logout
-              </button>
-            </>
-          ) : (
+        <div className="sm:hidden bg-white border-t border-gray-100 absolute w-full left-0 shadow-xl z-50">
+          <div className="max-w-[1400px] mx-auto px-4 py-4 flex flex-col gap-1">
             <Link
-              to="/login"
-              className="text-lg font-medium text-gray-800 flex items-center gap-2"
+              to="/"
+              className="flex items-center gap-3 px-3 py-3 text-gray-800 font-medium rounded-xl hover:bg-gray-50"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <User size={20} /> Login / Register
+              Home
             </Link>
-          )}
+
+            {user?.role === "admin" && (
+              <div className="mt-1 mb-1">
+                <div className="px-3 py-1.5 text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <Shield size={12} /> Admin Panel
+                </div>
+                {[
+                  { name: "Dashboard", path: "/admin" },
+                  { name: "Products", path: "/admin/products" },
+                  { name: "Add Product", path: "/admin/add-product" },
+                  { name: "Orders", path: "/admin/orders" },
+                  { name: "Users", path: "/admin/users" },
+                  { name: "Audit Logs", path: "/admin/audit-logs" },
+                ].map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className="flex items-center px-3 py-2.5 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-900 rounded-xl transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            <div className="border-t border-gray-100 my-1" />
+
+            {user ? (
+              <>
+                <Link
+                  to="/account"
+                  className="flex items-center gap-3 px-3 py-3 text-gray-800 font-medium rounded-xl hover:bg-gray-50"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User size={18} />
+                  My Account
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-3 py-3 text-red-600 font-medium rounded-xl hover:bg-red-50 text-left"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center gap-3 px-3 py-3 text-gray-800 font-medium rounded-xl hover:bg-gray-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <User size={18} />
+                Login / Register
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </nav>
